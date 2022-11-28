@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS
+CG_TOOL_ROOT := C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -185,16 +185,16 @@ all: RTOSDemo.out
 RTOSDemo.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: MSP432 Linker'
-	"C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O0 --opt_for_speed=2 -g --gcc --define=__MSP432P401R__ --define=USE_CMSIS_REGISTER_FORMAT=1 --define=TARGET_IS_MSP432P4XX --define=ccs --diag_warning=225 --diag_wrap=off --display_error_number --verbose_diagnostics --gen_func_subsections=on -z -m"RTOSDemo.map" --stack_size=800 --heap_size=0 -i"C:/TI/ccs/ccsv8/ccs_base/arm/include" -i"C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/lib" -i"C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="RTOSDemo_linkInfo.xml" --rom_model --unused_section_elimination=on -o "RTOSDemo.out" $(ORDERED_OBJS)
+	"C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O0 --opt_for_speed=2 -g --gcc --define=__MSP432P401R__ --define=USE_CMSIS_REGISTER_FORMAT=1 --define=TARGET_IS_MSP432P4XX --define=ccs --diag_warning=225 --diag_wrap=off --display_error_number --verbose_diagnostics --gen_func_subsections=on -z -m"RTOSDemo.map" --stack_size=800 --heap_size=0 -i"C:/TI/ccs/ccs_base/arm/include" -i"C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/lib" -i"C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="RTOSDemo_linkInfo.xml" --rom_model --unused_section_elimination=on -o "RTOSDemo.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
 
 RTOSDemo.bin: $(EXE_OUTPUTS)
-	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
+	@echo 'Building secondary target: "$@"'
 	@echo 'Invoking: MSP432 Hex Utility'
-	"C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armhex"  -o "RTOSDemo.bin" $(EXE_OUTPUTS__QUOTED)
-	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
+	"C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armhex" --diag_wrap=off -o "RTOSDemo.bin" $(EXE_OUTPUTS__QUOTED)
+	@echo 'Finished building secondary target: "$@"'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
 
@@ -208,7 +208,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-C:/TI/ccs/ccsv8/utils/tiobj2bin/tiobj2bin RTOSDemo.out RTOSDemo.bin C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armofd C:/TI/ccs/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armhex C:/TI/ccs/ccsv8/utils/tiobj2bin/mkhex4bin
+	-C:/TI/ccs/utils/tiobj2bin/tiobj2bin RTOSDemo.out RTOSDemo.bin C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armofd C:/TI/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armhex C:/TI/ccs/utils/tiobj2bin/mkhex4bin
 	-@echo ' '
 
 .PHONY: all clean dependents

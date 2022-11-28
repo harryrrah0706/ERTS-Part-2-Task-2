@@ -117,14 +117,14 @@ void beep(unsigned int note, unsigned int duration)
 //              and some delays to separate the various bits of this wonderful song.
 void play_song()
 {
-    beep(a, 500);
-    beep(a, 500);
-    beep(a, 500);
-    beep(f, 350);
-    beep(cH, 150);
-    beep(a, 500);
-    beep(f, 350);
-    beep(cH, 150);
+    beep(c, 500);
+    beep(d, 500);
+    beep(e, 500);
+    beep(c, 500);
+    beep(c, 500);
+    beep(d, 500);
+    beep(e, 500);
+    beep(c, 500);
     beep(a, 650);
 
     delay_ms(150);

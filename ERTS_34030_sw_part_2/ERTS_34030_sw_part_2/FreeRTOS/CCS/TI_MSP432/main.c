@@ -73,8 +73,7 @@ extern void main_program( void );
 
 /*-----------------------------------------------------------*/
 
-int main( void )
-{
+int main( void ){
     /* See http://www.FreeRTOS.org/TI_MSP432_Free_RTOS_Demo.html for instructions. */
 
     /* Prepare the hardware to run this demo. */

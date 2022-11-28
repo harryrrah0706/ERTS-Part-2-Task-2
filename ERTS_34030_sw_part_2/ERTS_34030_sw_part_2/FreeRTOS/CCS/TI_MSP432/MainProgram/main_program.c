@@ -47,24 +47,18 @@
 #include <stdint.h>
 #include "msp.h"
 #include "SysTick.h"
-#include "inc/CortexM.h"
+#include "./inc/CortexM.h"
 
-// TODO: include the songFile header file
+#include "./inc/songFile.h"
+#include "./inc/dcMotor.h"
+#include "./inc/bumpSwitch.h"
+#include "./inc/outputLED.h"
+#include "./inc/SysTick.h"
 
-// TODO: include the dcMotor header file
+#define SW1IN ((*((volatile uint8_t *)(0x42098004)))^1)
+#define SW2IN ((*((volatile uint8_t *)(0x42098010)))^1)
 
-// TODO: include the bumpSwitch header file
-
-// TODO: include the outputLED header file
-
-// TODO: include the SysTick header file
-
-// TODO: bit-banded addresses positive logic of input switch S1
-
-// TODO: bit-banded addresses positive logic of input switch S2
-
-// TODO: declare a global variable to read bump switches value,
-//       name this as bumpSwitch_status and use uint8_t
+uint8_t bumpSwitch_status;
 
 // static void Switch_Init
 static void Switch_Init(void);
@@ -73,14 +67,19 @@ static void Switch_Init(void);
 static void taskMasterThread( void *pvParameters );
 
 // TODO: declare a static void function for a task called "taskBumpSwitch"
+static void taskBumpSwitch (void *pvParameters);
 
 // TODO: declare a static void function for a task called "taskPlaySong"
+static void taskPlaySong (void *pvParameters);
 
 // TODO: declare a static void function for a task called "taskdcMotor"
+static void taskdcMotor (void *pvParameters);
 
 // TODO: declare a static void function for a task called "taskReadInputSwitch"
+static void taskReadInputSwitch (void *pvParameters);
 
 // TODO: declare a static void function for a task called "taskdcMotor"
+static void taskdcMotor (void *pvParameters);
 
 /*
  * Called by main() to create the main program application
@@ -96,84 +95,99 @@ static void prvConfigureClocks( void );
 xTaskHandle taskHandle_BlinkRedLED;
 
 // TODO: declare an identifier of task handler called "taskHandle_BumpSwitch"
+xTaskHandle taskHandle_BumpSwitch;
 
 // TODO: declare an identifier of task handler called "taskHandle_PlaySong"
+xTaskHandle taskHandle_PlaySong;
 
 // TODO: declare an identifier of task handler called "taskHandle_dcMotor"
+xTaskHandle taskHandle_dcMotor;
 
 // TODO: declare an identifier of task handler called "taskHandle_InputSwitch"
+xTaskHandle taskHandle_InputSwitch;
 
 // TODO: declare an identifier of task handler called "taskHandle_OutputLED"
-
+xTaskHandle taskHandle_OutputLED;
+// TODO: create a static void function for taskDisplayOutputLED
+static void taskDisplayOutputLED(void *pvParameters){
+    for( ;; ){
+//         TODO: use outputLED_response as the function and
+//               use bumpSwitch_status as the parameter
+        outputLED_response(bumpSwitch_status);
+    }
+}
 void main_program( void )
 {
-    // initialise the clock configuration
     prvConfigureClocks();
-
-    // TODO: initialise the switch
-
-    // TODO: initialise systick timer
+    Switch_Init();
+    SysTick_Init();
 
     //////////////////////////////////////////////////////
     // TIP: to create a task, use xTaskCreate in FreeRTOS
     // URL : https://www.freertos.org/a00125.html
     //////////////////////////////////////////////////////
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskMasterThread
-        //       pcName: taskT
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 2
-        //       pxCreatedTask: taskHandle_BlinkRedLED
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskMasterThread
+    //       pcName: taskT
+    //       usStackDepth: 128
+    //       pvParameters: NULL
+    //       uxPriority: 2
+    //       pxCreatedTask: taskHandle_BlinkRedLED
+    xTaskCreate(taskMasterThread, "taskT", 128, NULL, 2, &taskHandle_BlinkRedLED);
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskBumpSwitch
-        //       pcName: taskB
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 1
-        //       pxCreatedTask: taskHandle_BumpSwitch
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskBumpSwitch
+    //       pcName: taskB
+    //       usStackDepth: 128
+    //       pvParameters: NULL
+    //       uxPriority: 1
+    //       pxCreatedTask: taskHandle_BumpSwitch
+    xTaskCreate(taskBumpSwitch, "taskB", 128, NULL, 1, &taskHandle_BumpSwitch);
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskPlaySong
-        //       pcName: taskS
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 1
-        //       pxCreatedTask: taskHandle_PlaySong
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskPlaySong
+    //       pcName: taskS
+    //       usStackDepth: 128
+    //       pvParameters: NULL
+    //       uxPriority: 1
+    //       pxCreatedTask: taskHandle_PlaySong
+    xTaskCreate(taskPlaySong, "taskS", 128, NULL, 1, &taskHandle_PlaySong);
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskdcMotor
-        //       pcName: taskM
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 1
-        //       pxCreatedTask: taskHandle_dcMotor
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskdcMotor
+    //       pcName: taskM
+    //       usStackDepth: 128
+    //       pvParameters: NULL
+    //       uxPriority: 1
+    //       pxCreatedTask: taskHandle_dcMotor
+    xTaskCreate(taskdcMotor, "taskM", 128, NULL, 1, &taskHandle_dcMotor);
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskReadInputSwitch
-        //       pcName: taskR
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 1
-        //       pxCreatedTask: taskHandle_InputSwitch
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskReadInputSwitch
+    //       pcName: taskR
+    //       usStackDepth: 128
+    //       pvParameters: NULL
+    //       uxPriority: 1
+    //       pxCreatedTask: taskHandle_InputSwitch
+    xTaskCreate(taskReadInputSwitch, "taskR", 128, NULL, 1, &taskHandle_InputSwitch);
 
-        // TODO: Create a task that has these parameters=
-        //       pvTaskCode: taskDisplayOutputLED
-        //       pcName: taskD
-        //       usStackDepth: 128
-        //       pvParameters: NULL
-        //       uxPriority: 1
-        //       pxCreatedTask: taskHandle_OutputLED
+    // TODO: Create a task that has these parameters=
+    //       pvTaskCode: taskDisplayOutputLED
+    //       pcName: taskD
+    //       usStackDepth: 128
+    //       pvParameters: NULLtaskHandle_BlinkRedLED
+    //       uxPriority: 1
+    //       pxCreatedTask: taskHandle_OutputLED
+    xTaskCreate(taskDisplayOutputLED, "taskD", 128, NULL, 1, &taskHandle_OutputLED);
 
-        //////////////////////////////////////////////////////////////////
-        // TIP: to start a scheduler, use vTaskStartScheduler in FreeRTOS
-        // URL : https://www.freertos.org/a00132.html
-        //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    // TIP: to start a scheduler, use vTaskStartScheduler in FreeRTOS
+    // URL : https://www.freertos.org/a00132.html
+    //////////////////////////////////////////////////////////////////
 
-        // TODO: start the scheduler
-
+    // TODO: start the scheduler
+    vTaskStartScheduler();
 
     /* INFO: If everything is fine, the scheduler will now be running,
     and the following line will never be reached.  If the following line
@@ -260,52 +274,50 @@ static void taskReadInputSwitch( void *pvParameters ){
         // URL: https://www.freertos.org/a00131.html
         ///////////////////////////////////////////////////////////
 
-        if (i_SW1 == 1) {
-            //REDLED = 1;     // turn on the red LED
-            // TODO: suspend the task taskHandle_PlaySong
-
-        }
-        else {
-            //REDLED = 0;     // turn off the red LED
-            // TODO: resume the task taskHandle_PlaySong
-
-        }
+//        if (i_SW1 == 1) {
+//            //REDLED = 1;     // turn on the red LED
+//            // TODO: suspend the task taskHandle_PlaySong
+//            REDLED = 1;
+//            vTaskSuspend( taskHandle_PlaySong );
+//        }
+//        else {
+//            //REDLED = 0;     // turn off the red LED
+//            // TODO: resume the task taskHandle_PlaySong
+//            REDLED = 0;
+//            vTaskResume( taskHandle_PlaySong );
+//        }
 
     }
 }
 
 // TODO: create a static void function for taskPlaySong
-
+static void taskPlaySong(void *pvParameters){
     // TODO: initialise the song
-
+    init_song_pwm();
     // TODO: play the song's function and run forever
+    while (1){
+        play_song();
+    }
+}
 
 // TODO: create a static void function for taskBumpSwitch
+static void taskBumpSwitch(void *pvParameters){
     // TODO: initialise bump switches
-
+    BumpSwitch_Init();
     // TODO: Read the input of bump switches forever:
     //       Continuously read the 6 bump switches in a loop,
     //       and return it to the "bumpSwitch_status" variable.
     //       Note that the bumpSwitch_status is a global variable,
     //       so do not declare it again here locally.
-    //for( ;; ) // uncomment this
-    //{ // uncomment this
+    for( ;; ){
+//         TODO: use bumpSwitch_status as the variable and
+//               use Bump_Read_Input to read the input
+        bumpSwitch_status = Bump_Read_Input();
+    }
+}
 
-        // TODO: use bumpSwitch_status as the variable and
-        //       use Bump_Read_Input to read the input
-
-    //} // uncomment this
 
 
-// TODO: create a static void function for taskDisplayOutputLED
-
-    //for( ;; ) // uncomment this
-    //{ // uncomment this
-
-        // TODO: use outputLED_response as the function and
-        //       use bumpSwitch_status as the parameter
-
-    //} // uncomment this
 
 // a static void function for taskMasterThread
 static void taskMasterThread( void *pvParameters )
@@ -313,17 +325,17 @@ static void taskMasterThread( void *pvParameters )
     int i;
 
     // TODO: initialise the color LED
-
+    ColorLED_Init();
     // initialise the red LED
     RedLED_Init();
 
     while(!SW2IN){                  // Wait for SW2 switch
         for (i=0; i<1000000; i++);  // Wait here waiting for command
-        //REDLED = !REDLED;           // The red LED is blinking
+        REDLED = !REDLED;           // The red LED is blinking
     }
 
     // TODO: Turn off the RED LED, we no longer need that.
-
+    REDLED = 0;
     //////////////////////////////////////////////////////////////////
     // TIP: to suspend a task, use vTaskSuspend in FreeRTOS
     // URL: https://www.freertos.org/a00130.html
@@ -338,14 +350,17 @@ static void taskMasterThread( void *pvParameters )
     //       Please suspend this task itself, or maybe just delete it.
     //       Question: what are the difference between 'suspend' the task,
     //                 or 'delete' the task?
+    vTaskSuspend( taskHandle_BlinkRedLED );
 }
 
 // TODO: create a static void function for taskdcMotor
-
+static void taskdcMotor(void *pvParameters){
     // TODO: initialise the DC Motor
-
+    dcMotor_Init();
     // TODO: use a polling that continuously read from the bumpSwitch_status,
     //       and run this forever in a while loop.
     //       use dcMotor_response and bumpSwitch_status for the parameter
-
-
+    while (1){
+        dcMotor_response(bumpSwitch_status);
+    }
+}

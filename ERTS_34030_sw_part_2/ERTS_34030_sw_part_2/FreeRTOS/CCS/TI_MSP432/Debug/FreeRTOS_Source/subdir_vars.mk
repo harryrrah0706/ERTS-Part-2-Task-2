@@ -6,13 +6,13 @@ SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/croutine.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/event_groups.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/list.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/queue.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/stream_buffer.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/tasks.c \
-C:/Users/mb14650/OneDrive\ -\ University\ of\ Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/timers.c 
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/croutine.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/event_groups.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/list.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/queue.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/stream_buffer.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/tasks.c \
+C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/timers.c 
 
 C_DEPS += \
 ./FreeRTOS_Source/croutine.d \
@@ -51,12 +51,12 @@ C_DEPS__QUOTED += \
 "FreeRTOS_Source\timers.d" 
 
 C_SRCS__QUOTED += \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/croutine.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/event_groups.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/list.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/queue.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/stream_buffer.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/tasks.c" \
-"C:/Users/mb14650/OneDrive - University of Bristol/Documents/Downloads/part2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/timers.c" 
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/croutine.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/event_groups.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/list.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/queue.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/stream_buffer.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/tasks.c" \
+"C:/Users/fx19583/ERTS-Part-2-Task-2/ERTS_34030_sw_part_2/ERTS_34030_sw_part_2/FreeRTOS/Source/timers.c" 
 
 
