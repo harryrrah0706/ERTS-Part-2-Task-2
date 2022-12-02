@@ -59,6 +59,7 @@
 #define SW2IN ((*((volatile uint8_t *)(0x42098010)))^1)
 
 uint8_t bumpSwitch_status;
+int mode;
 
 static void Switch_Init(void);
 static void taskMasterThread( void *pvParameters );
@@ -66,8 +67,6 @@ static void taskBumpSwitch (void *pvParameters);
 static void taskPlaySong (void *pvParameters);
 static void taskdcMotor (void *pvParameters);
 static void taskReadInputSwitch (void *pvParameters);
-static void taskdcMotor (void *pvParameters);
-
 
 
 
@@ -93,8 +92,10 @@ xTaskHandle taskHandle_OutputLED;
 
 
 static void taskDisplayOutputLED(void *pvParameters){
-    for( ;; ){
-        outputLED_response(bumpSwitch_status);
+    if  (mode==2){
+        for( ;; ){
+            outputLED_response(bumpSwitch_status);
+        }
     }
 }
 
@@ -105,7 +106,6 @@ void main_program( void )
     prvConfigureClocks();
     Switch_Init();
     SysTick_Init();
-
     xTaskCreate(taskMasterThread, "taskT", 128, NULL, 2, &taskHandle_BlinkRedLED);
     xTaskCreate(taskBumpSwitch, "taskB", 128, NULL, 1, &taskHandle_BumpSwitch);
     xTaskCreate(taskPlaySong, "taskS", 128, NULL, 1, &taskHandle_PlaySong);
@@ -214,12 +214,16 @@ static void taskPlaySong(void *pvParameters){
 
 
 static void taskBumpSwitch(void *pvParameters){
-    BumpSwitch_Init();
-    for( ;; ){
-        bumpSwitch_status = Bump_Read_Input();
+    if (mode==1){
+        BumpEdgeTrigger_Init();
+    }
+    else if (mode==2){
+        BumpSwitch_Init();
+        for( ;; ){
+            bumpSwitch_status = Bump_Read_Input();
+        }
     }
 }
-
 
 
 
@@ -229,12 +233,16 @@ static void taskMasterThread( void *pvParameters )
 
     ColorLED_Init();
     RedLED_Init();
-
-    while(!SW2IN){                  // Wait for SW2 switch
+    while(!SW2IN&&!SW1IN){                  // Wait for SW2 switch
         for (i=0; i<500000; i++);  // Wait here waiting for command
         REDLED = !REDLED;           // The red LED is blinking
     }
-
+    if SW1IN{
+        mode=1;
+    }
+    else if SW2IN{
+        mode=2;
+    }
     vTaskSuspend( taskHandle_BlinkRedLED );
 }
 
@@ -242,7 +250,96 @@ static void taskMasterThread( void *pvParameters )
 
 static void taskdcMotor(void *pvParameters){
     dcMotor_Init();
-    while (1){
-        dcMotor_response(bumpSwitch_status);
+    if (mode==1){
+        while (1){
+            dcMotor_Forward(500, 10);
+        }
     }
+    else if (mode==2){
+        while (1){
+            Port2_Output2(WHITE);
+            dcMotor_response(bumpSwitch_status);
+        }
+    }
+}
+
+
+
+void BumpEdgeTrigger_Init(void){
+    P4->SEL0 &= ~0xED;
+    P4->SEL1 &= ~0xED;      // configure as GPIO
+    P4->DIR &= ~0xED;       // make in
+    P4->REN |= 0xED;        // enable pull resistors
+    P4->OUT |= 0xED;        // pull-up
+    P4->IES |= 0xED;        // falling edge event
+    P4->IFG &= ~0xED;       // clear flag
+    P4->IE |= 0xED;         // arm the interrupt
+    // priority 2 on port4
+    NVIC->IP[9] = (NVIC->IP[9]&0xFF00FFFF)|0x00400000;
+    // enable interrupt 38 in NVIC on port4
+    NVIC->ISER[1] = 0x00000040;
+}
+
+
+
+void turn_direction(int direction, int time){
+    if (direction==1){                      // direction 1 means turning left
+        Port2_Output2(GREEN);                // LED green means moving backward
+        Motor_Backward(500,100);
+        Port2_Output2(RED);                  // LED red means motor stops
+        Motor_Stop(500);
+        Port2_Output2(YELLOW);               // LED yellow means turning left
+        Motor_Left(500,time);        // turns left using "time" passed by function
+        Port2_Output2(RED);
+        Motor_Stop(500);
+    }
+    if (direction==2){                      // direction 2 means turning right
+        Port2_Output2(GREEN);                // LED green means moving backward
+        Motor_Backward(500,100);
+        Port2_Output2(RED);                  // LED red means motor stops
+        Motor_Stop(500);
+        Port2_Output2(BLUE);                 // LED blue means turning right
+        Motor_Right(500,time);       // turns right using "time" passed by function
+        Port2_Output2(RED);
+        Motor_Stop(500);
+    }
+}
+
+
+
+void PORT4_IRQHandler(void){
+
+
+    uint8_t status;
+    status = P4->IV;                   // 2*(n+1) where n is highest priority
+    switch(status){
+        case 0x02:
+            turn_direction(1,100);          // turn left for 10 ms
+            break;
+
+        case 0x06: // Bump switch 2
+            turn_direction(1,300);          // turn left for 15 ms
+            break;
+
+        case 0x08: // Bump switch 3
+            turn_direction(1,200);          // turn left for 20 ms
+            break;
+
+        case 0x0C: // Bump switch 4
+            turn_direction(2,500);          // turn right for 20 ms
+            break;
+
+        case 0x0E: // Bump switch 5
+            turn_direction(2,300);          // turn right for 15 ms
+            break;
+
+        case 0x10: // Bump switch 6
+            turn_direction(2,100);          // turn right for 10 ms
+            break;
+
+        case 0xED: // none of the switches are pressed
+            break;
+    }
+    Port2_Output(WHITE);
+    P4->IFG &= ~0xED; // clear flag
 }

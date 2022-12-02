@@ -62,7 +62,7 @@ policies, either expressed or implied, of the FreeBSD Project.
 #define f 349
 #define g 391
 #define gS 415
-#define a 440
+#define a 220
 #define aS 455
 #define b 466
 #define cH 523
@@ -117,28 +117,28 @@ void beep(unsigned int note, unsigned int duration)
 //              and some delays to separate the various bits of this wonderful song.
 void play_song()
 {
+    beep(f, 250);
+    beep(f, 500);
+    beep(f, 250);
+    beep(f, 500);
+    beep(e, 250);
     beep(c, 500);
-    beep(d, 500);
-    beep(e, 500);
+    beep(a, 250);
     beep(c, 500);
-    beep(c, 500);
-    beep(d, 500);
-    beep(e, 500);
-    beep(c, 500);
-    beep(a, 650);
 
-    delay_ms(150);
+    delay_ms(12000);
     //end of first bit
 
-    beep(eH, 500);
-    beep(eH, 500);
-    beep(eH, 500);
-    beep(fH, 350);
-    beep(cH, 150);
-    beep(gS, 500);
-    beep(f, 350);
-    beep(cH, 150);
-    beep(a, 650);
+    beep(f, 250);
+    beep(f, 500);
+    beep(f, 250);
+    beep(f, 500);
+    beep(e, 250);
+    beep(c, 500);
+    beep(a, 250);
+    beep(c, 500);
+    beep(g, 1000);
+
 
     delay_ms(150);
     //end of second bit...
