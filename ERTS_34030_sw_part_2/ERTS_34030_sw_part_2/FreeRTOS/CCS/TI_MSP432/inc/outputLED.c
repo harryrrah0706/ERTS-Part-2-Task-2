@@ -106,12 +106,12 @@ void outputLED_response(unsigned char bumpSwitch_status){
           Port2_Output2(BLUE);
         break;
       case 0xED: // neither switch pressed
-//          Port2_Output2(COLOUROFF);
+          Port2_Output2(COLOUROFF);
         break;
       default:
           Port2_Output2(WHITE);
     }
     for (i=0; i<100000; i++);
-//    Port2_Output2(WHITE);
+    Port2_Output2(WHITE);
 }
 
