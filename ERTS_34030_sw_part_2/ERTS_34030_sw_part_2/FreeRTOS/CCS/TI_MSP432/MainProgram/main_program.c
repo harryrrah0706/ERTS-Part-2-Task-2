@@ -68,8 +68,8 @@ static void taskBumpSwitch (void *pvParameters);
 static void taskPlaySong (void *pvParameters);
 static void taskdcMotor (void *pvParameters);
 static void taskReadInputSwitch (void *pvParameters);
-//SemaphoreHandle_t xSemaphore;
-
+SemaphoreHandle_t xSemaphore;
+BaseType_t xHigherPriorityTaskWoken;
 /*
  * Called by main() to create the main program application
  */
@@ -94,7 +94,7 @@ xTaskHandle taskHandle_OutputLED;
 static void taskDisplayOutputLED(void *pvParameters){
     if (mode==1){
         for( ;; ){
-            outputLED_response(status);
+            outputLED_response_interrupt(status);
         }
     }
     else if (mode==2){
@@ -111,7 +111,6 @@ void main_program( void )
     prvConfigureClocks();
     Switch_Init();
     SysTick_Init();
-//    xSemaphore = xSemaphoreCreateBinary();
     xTaskCreate(taskMasterThread, "taskT", 128, NULL, 2, &taskHandle_BlinkRedLED);
     xTaskCreate(taskBumpSwitch, "taskB", 128, NULL, 1, &taskHandle_BumpSwitch);
     xTaskCreate(taskPlaySong, "taskS", 128, NULL, 1, &taskHandle_PlaySong);
@@ -234,23 +233,6 @@ void BumpEdgeTrigger_Init(void){
 
 
 
-static void taskBumpSwitch(void *pvParameters){
-    if (mode==1){
-        BumpEdgeTrigger_Init();
-        for( ;; ){
-            dcMotor_Forward(500, 10);
-        }
-    }
-    else if (mode==2){
-        BumpSwitch_Init();
-        for( ;; ){
-            bumpSwitch_status = Bump_Read_Input();
-        }
-    }
-}
-
-
-
 static void taskMasterThread( void *pvParameters )
 {
     int i;
@@ -263,78 +245,68 @@ static void taskMasterThread( void *pvParameters )
     }
     if SW1IN{
         mode=1;
+        xSemaphore = xSemaphoreCreateBinary();
     }
     else if SW2IN{
         mode=2;
     }
     REDLED=0;
-    SysTick_Wait10ms(100);
     for (i=0; i<1000000; i++);  // Wait here waiting for command
     vTaskSuspend( taskHandle_BlinkRedLED );
 }
 
 
 
-void turn_direction(int direction, int time){
-    if (direction==1){                      // direction 1 means turning left
-        Port2_Output2(GREEN);                // LED green means moving backward
-        dcMotor_Backward(500,10);
-        Port2_Output2(RED);                  // LED red means motor stops
-        dcMotor_Stop(500);
-        Port2_Output2(YELLOW);               // LED yellow means turning left
-        dcMotor_Left(500,time);        // turns left using "time" passed by function
-        Port2_Output2(RED);
-        dcMotor_Stop(500);
-    }
-    if (direction==2){                      // direction 2 means turning right
-        Port2_Output2(GREEN);                // LED green means moving backward
-        dcMotor_Backward(500,10);
-        Port2_Output2(RED);                  // LED red means motor stops
-        dcMotor_Stop(500);
-        Port2_Output2(BLUE);                 // LED blue means turning right
-        dcMotor_Right(500,time);       // turns right using "time" passed by function
-        Port2_Output2(RED);
-        dcMotor_Stop(500);
-    }
+//void turn_direction(int direction, int time){
+//    if (direction==1){                      // direction 1 means turning left
+//        Port2_Output2(GREEN);                // LED green means moving backward
+//        dcMotor_Backward(500,10);
+//        Port2_Output2(RED);                  // LED red means motor stops
+//        dcMotor_Stop(500);
+//        Port2_Output2(YELLOW);               // LED yellow means turning left
+//        dcMotor_Left(500,time);        // turns left using "time" passed by function
+//        Port2_Output2(RED);
+//        dcMotor_Stop(500);
+//    }
+//    if (direction==2){                      // direction 2 means turning right
+//        Port2_Output2(GREEN);                // LED green means moving backward
+//        dcMotor_Backward(500,10);
+//        Port2_Output2(RED);                  // LED red means motor stops
+//        dcMotor_Stop(500);
+//        Port2_Output2(BLUE);                 // LED blue means turning right
+//        dcMotor_Right(500,time);       // turns right using "time" passed by function
+//        Port2_Output2(RED);
+//        dcMotor_Stop(500);
+//    }
+//}
+
+
+
+void PORT4_IRQHandler(void){
+    xHigherPriorityTaskWoken = pdFALSE;
+    status = P4->IV;
+    P4->IFG &= ~0xED; // clear flag
+    xSemaphoreGiveFromISR(xSemaphore,&xHigherPriorityTaskWoken);
 }
 
 
 
-void interrupt_response(uint8_t status){
-
-    status = P4->IV;                   // 2*(n+1) where n is highest priority
-
-    switch(status){
-        case 0x02:
-            turn_direction(1,10);          // turn left for 10 ms
-            break;
-
-        case 0x06: // Bump switch 2
-            turn_direction(1,30);          // turn left for 15 ms
-            break;
-
-        case 0x08: // Bump switch 3
-            turn_direction(1,20);          // turn left for 20 ms
-            break;
-
-        case 0x0C: // Bump switch 4
-            turn_direction(2,50);          // turn right for 20 ms
-            break;
-
-        case 0x0E: // Bump switch 5
-            turn_direction(2,30);          // turn right for 15 ms
-            break;
-
-        case 0x10: // Bump switch 6
-            turn_direction(2,10);          // turn right for 10 ms
-            break;
-
-        case 0xED: // none of the bump switches are pressed
-            dcMotor_Forward(500, 10);
-            //dcMotor_Stop(50);
-          break;
+static void taskBumpSwitch(void *pvParameters){
+    if (mode==1){
+        BumpEdgeTrigger_Init();
+        for( ;; ){
+            if( xSemaphoreTakeFromISR( xSemaphore, &xHigherPriorityTaskWoken ) == pdTRUE){
+                Port2_Output2(GREEN);
+                interrupt_response(status);
+            }
+        }
     }
-    P4->IFG &= ~0xED; // clear flag
+    else if (mode==2){
+        BumpSwitch_Init();
+        for( ;; ){
+            bumpSwitch_status = Bump_Read_Input();
+        }
+    }
 }
 
 
@@ -343,8 +315,7 @@ static void taskdcMotor(void *pvParameters){
     dcMotor_Init();
     if (mode==1){
         while (1){
-            Port2_Output2(SKYBLUE);
-            interrupt_response(status);
+            dcMotor_Forward(500, 1);
         }
     }
     else if (mode==2){

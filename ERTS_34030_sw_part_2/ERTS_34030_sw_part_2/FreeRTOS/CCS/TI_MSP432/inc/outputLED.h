@@ -74,5 +74,6 @@ void RedLED_Init(void);
 void ColorLED_Init(void);
 void Port2_Output2(unsigned char data);
 void outputLED_response(unsigned char bumpSwitch_status);
+void outputLED_response_interrupt(unsigned char bumpSwitch_status);
 
 #endif

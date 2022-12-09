@@ -54,5 +54,6 @@ void dcMotor_Left(uint16_t duty, uint32_t time_ms);
 void dcMotor_Right(uint16_t duty, uint32_t time_ms);
 void Port2_Init2(void);
 void dcMotor_response(unsigned char bumpSwitch_status);
+void interrupt_response(unsigned char bumpSwitch_status);
 
 #endif

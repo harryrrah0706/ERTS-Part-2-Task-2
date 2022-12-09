@@ -115,3 +115,37 @@ void outputLED_response(unsigned char bumpSwitch_status){
     Port2_Output2(WHITE);
 }
 
+
+void outputLED_response_interrupt(unsigned char bumpSwitch_status){
+
+    int i;
+
+    switch(bumpSwitch_status){
+      case 0x02: // Bump switch 1
+          Port2_Output2(SKYBLUE);
+        break;
+      case 0x06: // Bump switch 2
+          Port2_Output2(RED);
+        break;
+      case 0x08: // Bump switch 3
+          Port2_Output2(PINK);
+        break;
+      case 0x0C: // Bump switch 4
+          Port2_Output2(YELLOW);
+        break;
+      case 0x0E: // Bump switch 5
+          Port2_Output2(GREEN);
+        break;
+      case 0x10: // Bump switch 6
+          Port2_Output2(BLUE);
+        break;
+      case 0xED: // neither switch pressed
+          Port2_Output2(COLOUROFF);
+        break;
+//      default:
+//          Port2_Output2(PINK);
+    }
+    for (i=0; i<100000; i++);
+    Port2_Output2(COLOUROFF);
+}
+
