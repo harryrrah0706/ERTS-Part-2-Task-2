@@ -257,10 +257,10 @@ void interrupt_response(unsigned char bumpSwitch_status){
           dcMotor_Right(500, 10);
           dcMotor_Stop(500);
         break;
-      case 0xED: // none of the bump switches are pressed
-          dcMotor_Forward(500, 100);
-          //dcMotor_Stop(50);
-        break;
+//      case 0xED: // none of the bump switches are pressed
+//          dcMotor_Forward(500, 100);
+//          //dcMotor_Stop(50);
+//        break;
 //      default: // when more than two bump switches are pressed
 //          dcMotor_Backward(500, 100);
 //          dcMotor_Stop(500);

@@ -145,7 +145,7 @@ void outputLED_response_interrupt(unsigned char bumpSwitch_status){
 //      default:
 //          Port2_Output2(PINK);
     }
-    for (i=0; i<100000; i++);
+    for (i=0; i<1000; i++);
     Port2_Output2(COLOUROFF);
 }
 

@@ -252,39 +252,15 @@ static void taskMasterThread( void *pvParameters )
     }
     REDLED=0;
     for (i=0; i<1000000; i++);  // Wait here waiting for command
-    vTaskSuspend( taskHandle_BlinkRedLED );
+    vTaskDelete( taskHandle_BlinkRedLED );
 }
-
-
-
-//void turn_direction(int direction, int time){
-//    if (direction==1){                      // direction 1 means turning left
-//        Port2_Output2(GREEN);                // LED green means moving backward
-//        dcMotor_Backward(500,10);
-//        Port2_Output2(RED);                  // LED red means motor stops
-//        dcMotor_Stop(500);
-//        Port2_Output2(YELLOW);               // LED yellow means turning left
-//        dcMotor_Left(500,time);        // turns left using "time" passed by function
-//        Port2_Output2(RED);
-//        dcMotor_Stop(500);
-//    }
-//    if (direction==2){                      // direction 2 means turning right
-//        Port2_Output2(GREEN);                // LED green means moving backward
-//        dcMotor_Backward(500,10);
-//        Port2_Output2(RED);                  // LED red means motor stops
-//        dcMotor_Stop(500);
-//        Port2_Output2(BLUE);                 // LED blue means turning right
-//        dcMotor_Right(500,time);       // turns right using "time" passed by function
-//        Port2_Output2(RED);
-//        dcMotor_Stop(500);
-//    }
-//}
 
 
 
 void PORT4_IRQHandler(void){
     xHigherPriorityTaskWoken = pdFALSE;
     status = P4->IV;
+    Port2_Output2(SKYBLUE);
     P4->IFG &= ~0xED; // clear flag
     xSemaphoreGiveFromISR(xSemaphore,&xHigherPriorityTaskWoken);
 }
